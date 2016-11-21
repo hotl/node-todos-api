@@ -20,7 +20,7 @@ app.get('/todos', function(req, res) {
 	}
 	if (query.q && query.q.trim().length > 0) {
 		query.q = {
-			$like: '%' + query.q + '%'
+			$like: '%' + query.q.toLowerCase() + '%'
 		};
 		query.description = query.q;
 		delete query.q;
