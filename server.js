@@ -14,7 +14,12 @@ app.get('/', function(req, res) {
 
 // GET todos collection
 app.get('/todos', function(req, res) {
-	res.json(todos);
+	var queryParams = _.pick(req.query, 'description', 'completed');
+	if (req.query.completed) {
+		queryParams.completed = (req.query.completed.toLowerCase() === "true");
+	}
+	var filtered = _.where(todos, queryParams);
+	res.json(filtered);
 });
 
 // GET individual todo
