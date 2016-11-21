@@ -37,17 +37,18 @@ app.get('/todos', function(req, res) {
 // GET individual todo
 app.get('/todos/:id', function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
-	var matched = _.findWhere(todos, {
-		id: todoId
+	db.todo.findById(todoId).then(function(todo) {
+		if (todo) {
+			res.json(todo.toJSON());
+		} else {
+			res.status(404).send('Resource was not found');
+		}
+	}, function(err) {
+		res.status(500).send();
 	});
-
-	if (matched) {
-		res.json(matched);
-	} else {
-		res.status(404).send();
-	}
 });
 
+// Add middleware to parse req.body for appropriate HTTP methods
 app.use(body_parser.json());
 
 // POST add todo
