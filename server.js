@@ -14,11 +14,18 @@ app.get('/', function(req, res) {
 
 // GET todos collection
 app.get('/todos', function(req, res) {
-	var queryParams = _.pick(req.query, 'description', 'completed');
+	var filtered = todos;
+	var queryParams = _.pick(req.query, 'q', 'completed');
+
 	if (req.query.completed) {
 		queryParams.completed = (req.query.completed.toLowerCase() === "true");
+		filtered = _.filter(filtered, function(todo) { return todo.completed == queryParams.completed; });
 	}
-	var filtered = _.where(todos, queryParams);
+
+	if (req.query.q && req.query.q.trim().length > 0) {
+		filtered = _.filter(filtered, function(todo){ return todo.description.toLowerCase().indexOf(queryParams.q) > -1 });
+	}
+
 	res.json(filtered);
 });
 
