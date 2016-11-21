@@ -6,8 +6,6 @@ var db = require('./db.js');
 var app = express();
 const PORT = process.env.PORT || 3000;
 
-var todos = [];
-var todoNextId = 1;
 
 app.get('/', function(req, res) {
 	res.send('Todo API Root');
@@ -15,23 +13,25 @@ app.get('/', function(req, res) {
 
 // GET todos collection
 app.get('/todos', function(req, res) {
-	var filtered = todos;
-	var queryParams = _.pick(req.query, 'q', 'completed');
+	var query = _.pick(req.query, 'q', 'completed');
 
-	if (req.query.completed) {
-		queryParams.completed = (req.query.completed.toLowerCase() === "true");
-		filtered = _.filter(filtered, function(todo) {
-			return todo.completed == queryParams.completed;
-		});
+	if (query.completed) {
+		query.completed = (query.completed.toLowerCase() === 'true');
 	}
-
-	if (req.query.q && req.query.q.trim().length > 0) {
-		filtered = _.filter(filtered, function(todo) {
-			return todo.description.toLowerCase().indexOf(queryParams.q) > -1
-		});
+	if (query.q && query.q.trim().length > 0) {
+		query.q = {
+			$like: '%' + query.q + '%'
+		};
+		query.description = query.q;
+		delete query.q;
 	}
-
-	res.json(filtered);
+	db.todo.findAll({
+		where: query
+	}).then(function(todos) {
+		res.json(todos);
+	}, function(err) {
+		res.status(500).send();
+	});
 });
 
 // GET individual todo
