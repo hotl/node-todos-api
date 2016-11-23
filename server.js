@@ -121,7 +121,7 @@ app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {
 				res.status(400).json(err);
 			});
 		} else {
-			return res.status(404).send();
+			return res.status(401).send();
 		}
 	}, function(err) {
 		res.status(500).send();
@@ -156,7 +156,7 @@ app.post('/users/login', function(req, res) {
 	
 });
 
-db.sequelize.sync().then(function() {
+db.sequelize.sync({force: true}).then(function() {
 	app.listen(PORT, function() {
 		console.log('Express server now listening' + ' on port ' + PORT);
 	});
